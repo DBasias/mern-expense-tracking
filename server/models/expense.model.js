@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const ExpenseSchema = new mongoose.Model({
+const ExpenseSchema = new mongoose.Schema({
   title: {
     type: String,
     trim: true,
