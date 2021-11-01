@@ -1,11 +1,12 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Card, CardContent, CardMedia, Typography } from "@material-ui/core";
 import unicornbikeImg from "./../assets/images/unicornbike.jpg";
 
 const useStyles = makeStyles(theme => ({
   card: {
-    maxWidth: 600,
+    maxWidth: 800,
     margin: "auto",
     marginTop: theme.spacing(5),
     marginBottom: theme.spacing(5),
@@ -17,7 +18,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.openTitle,
   },
   media: {
-    minHeight: 400,
+    minHeight: 440,
   },
   credit: {
     padding: 10,
@@ -25,7 +26,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "#ededed",
     borderBottom: "1px solid #d0d0d0",
     "& a": {
-      color: "#3f4771",
+      color: "#4f83cc",
     },
   },
 }));
@@ -60,7 +61,8 @@ export default function Home() {
       </Typography>
       <CardContent>
         <Typography variant="body1" component="p">
-          Welcome to the MERN Skeleton home page.
+          Welcome to the MERN Expense Tracker. <Link to="/signup">Sign up</Link>{" "}
+          or <Link to="/signin">sign in</Link> to get started.
         </Typography>
       </CardContent>
     </Card>
