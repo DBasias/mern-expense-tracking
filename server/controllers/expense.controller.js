@@ -1,6 +1,7 @@
+import { extend } from "lodash";
+import mongoose from "mongoose";
 import Expense from "../models/expense.model";
 import errorHandler from "../helpers/dbErrorHandler";
-import { extend } from "lodash";
 
 const create = async (req, res) => {
   try {
@@ -81,6 +82,76 @@ const remove = async (req, res) => {
   }
 };
 
+const currentMonthPreview = async (req, res) => {
+  const date = new Date(),
+    y = date.getFullYear(),
+    m = date.getMonth();
+
+  const firstDay = new Date(y, m, 1);
+  const lastDay = new Date(y, m + 1, 0);
+
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+
+  const tomorrow = new Date();
+  tomorrow.setUTCHours(0, 0, 0, 0);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const yesterday = new Date();
+  yesterday.setUTCHours(0, 0, 0, 0);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  try {
+    let currentPreview = await Expense.aggregate([
+      {
+        $facet: {
+          month: [
+            {
+              $match: {
+                incurred_on: { $gte: firstDay, $lt: lastDay },
+                recorded_by: mongoose.Types.ObjectId(req.auth._id),
+              },
+            },
+            {
+              $group: { _id: "currentMonth", totalSpent: { $sum: "$amount" } },
+            },
+          ],
+          today: [
+            {
+              $match: {
+                incurred_on: { $gte: today, $lt: tomorrow },
+                recorded_by: mongoose.Types.ObjectId(req.auth._id),
+              },
+            },
+            { $group: { _id: "today", totalSpent: { $sum: "$amount" } } },
+          ],
+          yesterday: [
+            {
+              $match: {
+                incurred_on: { $gte: yesterday, $lt: today },
+                recorded_by: mongoose.Types.ObjectId(req.auth._id),
+              },
+            },
+            { $group: { _id: "yesterday", totalSpent: { $sum: "$amount" } } },
+          ],
+        },
+      },
+    ]);
+
+    let expensePreview = {
+      month: currentPreview[0].month[0],
+      today: currentPreview[0].today[0],
+      yesterday: currentPreview[0].yesterday[0],
+    };
+
+    return res.json(expensePreview);
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err),
+    });
+  }
+};
+
 const expenseById = async (req, res, next, id) => {
   try {
     let expense = await Expense.findById(id)
@@ -108,5 +179,6 @@ export default {
   hasAuthorization,
   update,
   remove,
+  currentMonthPreview,
   expenseById,
 };
