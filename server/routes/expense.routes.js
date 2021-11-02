@@ -9,4 +9,15 @@ router
   .post(authCtrl.requireSignin, expenseCtrl.create)
   .get(authCtrl.requireSignin, expenseCtrl.listByUser);
 
+router
+  .route("/api/expenses/:expenseId")
+  .put(authCtrl.requireSignin, expenseCtrl.hasAuthorization, expenseCtrl.update)
+  .delete(
+    authCtrl.requireSignin,
+    expenseCtrl.hasAuthorization,
+    expenseCtrl.remove
+  );
+
+router.param("expenseId", expenseCtrl.expenseById);
+
 export default router;
