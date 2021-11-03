@@ -173,6 +173,77 @@ const expenseById = async (req, res, next, id) => {
   }
 };
 
+const expenseByCategory = async (req, res) => {
+  const date = new Date(),
+    y = date.getFullYear(),
+    m = date.getMonth();
+
+  const firstDay = new Date(y, m, 1);
+  const lastDay = new Date(y, m + 1, 0);
+
+  try {
+    let categoryMonthlyAvg = await Expense.aggregate([
+      {
+        $facet: {
+          average: [
+            { $match: { recorded_by: mongoose.Types.ObjectId(req.auth._id) } },
+            {
+              $group: {
+                _id: {
+                  category: "$category",
+                  month: { $month: "$incurred_on" },
+                },
+                totalSpent: { $sum: "$amount" },
+              },
+            },
+            {
+              $group: {
+                _id: "$_id.category",
+                avgSpent: { $avg: "$totalSpent" },
+              },
+            },
+            {
+              $project: {
+                _id: "$_id",
+                value: { average: "$avgSpent" },
+              },
+            },
+          ],
+          total: [
+            {
+              $match: {
+                incurred_on: { $gte: firstDay, $lte: lastDay },
+                recorded_by: mongoose.Types.ObjectId(req.auth._id),
+              },
+            },
+            { $group: { _id: "$category", totalSpent: { $sum: "$amount" } } },
+            {
+              $project: {
+                _id: "$_id",
+                value: { total: "$totalSpent" },
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          overview: { $setUnion: ["$average", "$total"] },
+        },
+      },
+      { $unwind: "$overview" },
+      { $replaceRoot: { newRoot: "$overview" } },
+      { $group: { _id: "$_id", mergedValues: { $mergeObjects: "$value" } } },
+    ]);
+
+    return res.json(categoryMonthlyAvg);
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err),
+    });
+  }
+};
+
 export default {
   create,
   listByUser,
@@ -180,5 +251,6 @@ export default {
   update,
   remove,
   currentMonthPreview,
+  expenseByCategory,
   expenseById,
 };
