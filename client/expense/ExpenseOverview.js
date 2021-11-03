@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Card, Typography } from "@material-ui/core";
+import { Card, Typography, Divider } from "@material-ui/core";
 import { Link, Redirect } from "react-router-dom";
 import auth from "../auth/auth-helper";
 import { currentMonthPreview, expenseByCategory } from "./api-expense";
