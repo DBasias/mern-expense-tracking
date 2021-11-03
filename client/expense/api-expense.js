@@ -71,4 +71,21 @@ const remove = async (params, credentials) => {
   }
 };
 
-export { create, listByUser, update, remove };
+const currentMonthPreview = async (credentials, signal) => {
+  try {
+    let response = await fetch("/api/expenses/current/preview", {
+      method: "GET",
+      signal: signal,
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + credentials.t,
+      },
+    });
+
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export { create, listByUser, update, remove, currentMonthPreview };
