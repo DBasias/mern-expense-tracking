@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Card, Typography } from "@material-ui/core";
 import { Link, Redirect } from "react-router-dom";
 import auth from "../auth/auth-helper";
-import { currentMonthPreview } from "./api-expense";
+import { currentMonthPreview, expenseByCategory } from "./api-expense";
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -76,6 +76,7 @@ export default function ExpenseOverview() {
     today: 0,
     yesterday: 0,
   });
+  const [expenseCategories, setExpenseCategories] = useState([]);
 
   const jwt = auth.isAuthenticated();
 
@@ -95,6 +96,41 @@ export default function ExpenseOverview() {
       abortController.abort();
     };
   }, []);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    expenseByCategory({ t: jwt.token }, signal).then(data => {
+      if (data.error) {
+        setRedirectToSignIn(true);
+      } else {
+        setExpenseCategories(data);
+      }
+    });
+
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, []);
+
+  const indicateExpense = values => {
+    let color = "#4f83cc";
+
+    if (values.total) {
+      const diff = values.total - values.average;
+
+      if (diff > 0) {
+        color = "#e9858b";
+      }
+
+      if (diff < 0) {
+        color = "#2bbd7e";
+      }
+    }
+
+    return color;
+  };
 
   if (redirectToSignIn) {
     return <Redirect to="/signin" />;
@@ -139,6 +175,85 @@ export default function ExpenseOverview() {
             <Typography variant="h6">See more</Typography>
           </Link>
         </div>
+      </div>
+      <Divider />
+      <div className={classes.categorySection}>
+        {expenseCategories.map((expense, index) => {
+          return (
+            <div
+              key={index}
+              style={{ display: "grid", justifyContent: "center" }}
+            >
+              <Typography variant="h5" className={classes.catTitle}>
+                {expense._id}
+              </Typography>
+              <Divider
+                className={classes.catDiv}
+                style={{
+                  backgroundColor: indicateExpense(expense.mergedValues),
+                }}
+              />
+              <div>
+                <Typography
+                  component="span"
+                  className={`${classes.catHeading} ${classes.val}`}
+                >
+                  past average
+                </Typography>
+                <Typography
+                  component="span"
+                  className={`${classes.catHeading} ${classes.val}`}
+                >
+                  this month
+                </Typography>
+                <Typography
+                  component="span"
+                  className={`${classes.catHeading} ${classes.val}`}
+                >
+                  {expense.mergedValues.total &&
+                  expense.mergedValues.total - expense.mergedValues.average > 0
+                    ? "spent extra"
+                    : "saved"}
+                </Typography>
+              </div>
+              <div style={{ marginBottom: 3 }}>
+                <Typography
+                  component="span"
+                  className={classes.val}
+                  style={{ color: "#595555", fontSize: "1.15em" }}
+                >
+                  ${expense.mergedValues.average}
+                </Typography>
+                <Typography
+                  component="span"
+                  className={classes.val}
+                  style={{
+                    color: "#002f6c",
+                    fontSize: "1.6em",
+                    backgroundColor: "#eafff5",
+                    padding: "8px 0",
+                  }}
+                >
+                  ${expense.mergedValues.total ? expense.mergedValues.total : 0}
+                </Typography>
+                <Typography
+                  component="span"
+                  className={classes.val}
+                  style={{ color: "#484646", fontSize: "1.25em" }}
+                >
+                  $
+                  {expense.mergedValues.total
+                    ? Math.abs(
+                        expense.mergedValues.total -
+                          expense.mergedValues.average
+                      )
+                    : expense.mergedValues.average}
+                </Typography>
+              </div>
+              <Divider style={{ marginBottom: 10 }} />
+            </div>
+          );
+        })}
       </div>
     </Card>
   );

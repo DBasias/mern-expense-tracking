@@ -88,4 +88,28 @@ const currentMonthPreview = async (credentials, signal) => {
   }
 };
 
-export { create, listByUser, update, remove, currentMonthPreview };
+const expenseByCategory = async (credentials, signal) => {
+  try {
+    let response = await fetch("/api/expenses/by/category", {
+      method: "GET",
+      signal: signal,
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + credentials.t,
+      },
+    });
+
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export {
+  create,
+  listByUser,
+  update,
+  remove,
+  currentMonthPreview,
+  expenseByCategory,
+};
