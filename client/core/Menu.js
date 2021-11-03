@@ -39,6 +39,15 @@ const Menu = withRouter(({ history }) => (
             <HomeIcon />
           </IconButton>
         </Link>
+        {auth.isAuthenticated() && (
+          <span>
+            <Link to={"/expenses/all"}>
+              <Button style={isActive(history, "/expenses/all")}>
+                Expenses
+              </Button>
+            </Link>
+          </span>
+        )}
       </div>
       <div style={{ position: "absolute", right: "10px" }}>
         <span style={{ float: "right" }}>

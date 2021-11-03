@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Card, CardContent, CardMedia, Typography } from "@material-ui/core";
 import unicornbikeImg from "./../assets/images/unicornbike.jpg";
+import auth from "../auth/auth-helper";
+import ExpenseOverview from "../expense/ExpenseOverview";
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -34,37 +36,43 @@ const useStyles = makeStyles(theme => ({
 export default function Home() {
   const classes = useStyles();
   return (
-    <Card className={classes.card}>
-      <Typography variant="h6" className={classes.title}>
-        Home Page
-      </Typography>
-      <CardMedia
-        className={classes.media}
-        image={unicornbikeImg}
-        title="Unicorn Bicycle"
-      />
-      <Typography
-        variant="body2"
-        component="p"
-        className={classes.credit}
-        color="textSecondary"
-      >
-        Photo by{" "}
-        <a
-          href="https://unsplash.com/@boudewijn_huysmans"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Boudewijn Huysmans
-        </a>{" "}
-        on Unsplash
-      </Typography>
-      <CardContent>
-        <Typography variant="body1" component="p">
-          Welcome to the MERN Expense Tracker. <Link to="/signup">Sign up</Link>{" "}
-          or <Link to="/signin">sign in</Link> to get started.
-        </Typography>
-      </CardContent>
-    </Card>
+    <>
+      {auth.isAuthenticated() && <ExpenseOverview />}
+      {!auth.isAuthenticated() && typeof window !== "undefined" && (
+        <Card className={classes.card}>
+          <Typography variant="h6" className={classes.title}>
+            Home Page
+          </Typography>
+          <CardMedia
+            className={classes.media}
+            image={unicornbikeImg}
+            title="Unicorn Bicycle"
+          />
+          <Typography
+            variant="body2"
+            component="p"
+            className={classes.credit}
+            color="textSecondary"
+          >
+            Photo by{" "}
+            <a
+              href="https://unsplash.com/@boudewijn_huysmans"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Boudewijn Huysmans
+            </a>{" "}
+            on Unsplash
+          </Typography>
+          <CardContent>
+            <Typography variant="body1" component="p">
+              Welcome to the MERN Expense Tracker.{" "}
+              <Link to="/signup">Sign up</Link> or{" "}
+              <Link to="/signin">sign in</Link> to get started.
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
+    </>
   );
 }
