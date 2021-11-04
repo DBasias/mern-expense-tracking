@@ -17,6 +17,10 @@ router
   .get(authCtrl.requireSignin, expenseCtrl.plotExpenses);
 
 router
+  .route("/api/expenses/yearly")
+  .get(authCtrl.requireSignin, expenseCtrl.yearlyExpsenses);
+
+router
   .route("/api/expenses")
   .post(authCtrl.requireSignin, expenseCtrl.create)
   .get(authCtrl.requireSignin, expenseCtrl.listByUser);

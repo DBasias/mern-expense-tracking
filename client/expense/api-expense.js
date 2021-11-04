@@ -124,6 +124,25 @@ const plotExpenses = async (params, credentials, signal) => {
   }
 };
 
+const yearlyExpsenses = async (params, credentials, signal) => {
+  const query = queryString.stringify(params);
+
+  try {
+    let response = await fetch("/api/expenses/yearly?" + query, {
+      method: "GET",
+      signal: signal,
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + credentials.t,
+      },
+    });
+
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export {
   create,
   listByUser,
@@ -132,4 +151,5 @@ export {
   currentMonthPreview,
   expenseByCategory,
   plotExpenses,
+  yearlyExpsenses,
 };

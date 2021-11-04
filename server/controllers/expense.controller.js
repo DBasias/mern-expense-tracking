@@ -271,6 +271,31 @@ const plotExpenses = async (req, res) => {
   }
 };
 
+const yearlyExpsenses = async (req, res) => {
+  const y = req.query.year;
+  const firstDay = new Date(y, 0, 1);
+  const lastDay = new Date(y, 12, 0);
+
+  try {
+    let totalMonthly = await Expense.aggregate([
+      { $match: { incurred_on: { $gte: firstDay, $lt: lastDay } } },
+      {
+        $group: {
+          _id: { $month: "$incurred_on" },
+          totalSpent: { $sum: "$amount" },
+        },
+      },
+      { $project: { x: "$_id", y: "$totalSpent" } },
+    ]).exec();
+
+    return res.status(200).json({ monthTot: totalMonthly });
+  } catch (err) {
+    return res.status(400).json({
+      error: errorHandler.getErrorMessage(err),
+    });
+  }
+};
+
 export default {
   create,
   listByUser,
@@ -280,5 +305,6 @@ export default {
   currentMonthPreview,
   expenseByCategory,
   plotExpenses,
+  yearlyExpsenses,
   expenseById,
 };
