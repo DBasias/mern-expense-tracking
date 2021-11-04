@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Reports() {
+export default function CategoryPie() {
   const classes = useStyles();
 
   const date = new Date(),

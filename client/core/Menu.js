@@ -46,6 +46,11 @@ const Menu = withRouter(({ history }) => (
                 Expenses
               </Button>
             </Link>
+            <Link to={"/expenses/reports"}>
+              <Button style={isActive(history, "/expenses/reports")}>
+                Reports
+              </Button>
+            </Link>
           </span>
         )}
       </div>
