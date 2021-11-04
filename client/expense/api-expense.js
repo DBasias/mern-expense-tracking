@@ -124,7 +124,7 @@ const plotExpenses = async (params, credentials, signal) => {
   }
 };
 
-const yearlyExpsenses = async (params, credentials, signal) => {
+const yearlyExpenses = async (params, credentials, signal) => {
   const query = queryString.stringify(params);
 
   try {
@@ -170,6 +170,6 @@ export {
   currentMonthPreview,
   expenseByCategory,
   plotExpenses,
-  yearlyExpsenses,
+  yearlyExpenses,
   averageCategories,
 };

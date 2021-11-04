@@ -5,7 +5,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import { VictoryTheme, VictoryAxis, VictoryBar, VictoryChart } from "victory";
 import auth from "../auth/auth-helper";
-import { yearlyExpsenses } from "../expense/api-expense";
+import { yearlyExpenses } from "../expense/api-expense";
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -42,17 +42,15 @@ export default function YearlyBar() {
     const abortController = new AbortController();
     const signal = abortController.signal;
 
-    yearlyExpsenses(
-      { year: year.getFullYear() },
-      { t: jwt.token },
-      signal
-    ).then(data => {
-      if (data.erro) {
-        setError(data.error);
-      } else {
-        setYearlyExpense(data);
+    yearlyExpenses({ year: year.getFullYear() }, { t: jwt.token }, signal).then(
+      data => {
+        if (data.erro) {
+          setError(data.error);
+        } else {
+          setYearlyExpense(data);
+        }
       }
-    });
+    );
 
     return function cleanup() {
       abortController.abort();
